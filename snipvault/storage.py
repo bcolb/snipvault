@@ -21,10 +21,17 @@ def _connect(path: Path):
         conn.close()
 
 
+def _parse_tags(raw: str) -> list[str]:
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+
+
 def load(path: Path = DEFAULT_VAULT_PATH) -> dict:
     with _connect(path) as conn:
         rows = conn.execute("SELECT name, snippet, tags FROM snippets").fetchall()
-    return {name: {"snippet": snippet, "tags": json.loads(tags)} for name, snippet, tags in rows}
+    return {name: {"snippet": snippet, "tags": _parse_tags(tags)} for name, snippet, tags in rows}
 
 
 def get_one(name: str, path: Path = DEFAULT_VAULT_PATH) -> dict | None:
@@ -34,7 +41,7 @@ def get_one(name: str, path: Path = DEFAULT_VAULT_PATH) -> dict | None:
         ).fetchone()
     if row is None:
         return None
-    return {"snippet": row[0], "tags": json.loads(row[1])}
+    return {"snippet": row[0], "tags": _parse_tags(row[1])}
 
 
 def upsert(name: str, snippet: str, tags: list[str], path: Path = DEFAULT_VAULT_PATH) -> None:
