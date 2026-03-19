@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Pytest
+.pytest_cache/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# macOS
+.DS_Store
+
+# SnipVault data
+~/.snipvault/
