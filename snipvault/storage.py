@@ -6,15 +6,19 @@ from contextlib import contextmanager
 DEFAULT_VAULT_PATH = Path.home() / ".snipvault" / "vault.db"
 
 
+def init_db(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(path) as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS snippets "
+            "(name TEXT PRIMARY KEY, snippet TEXT NOT NULL, tags TEXT NOT NULL DEFAULT '[]')"
+        )
+
+
 @contextmanager
 def _connect(path: Path):
-    path.parent.mkdir(parents=True, exist_ok=True)
+    init_db(path)
     conn = sqlite3.connect(path)
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS snippets "
-        "(name TEXT PRIMARY KEY, snippet TEXT NOT NULL, tags TEXT NOT NULL DEFAULT '[]')"
-    )
-    conn.commit()
     try:
         yield conn
     finally:
