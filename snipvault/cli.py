@@ -1,4 +1,5 @@
 import argparse
+import sqlite3
 import sys
 from . import vault
 
@@ -30,6 +31,14 @@ def main():
 
     args = parser.parse_args()
 
+    try:
+        _dispatch(args)
+    except sqlite3.OperationalError as e:
+        print(f"Error: could not access the vault — {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _dispatch(args):
     if args.command == "add":
         vault.add(args.name, args.snippet, args.tags)
         print(f"Saved '{args.name}'.")
