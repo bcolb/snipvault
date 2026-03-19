@@ -5,7 +5,7 @@ from snipvault import vault
 
 @pytest.fixture
 def tmp_vault(tmp_path):
-    return tmp_path / "vault.json"
+    return tmp_path / "vault.db"
 
 
 def test_add_and_get(tmp_vault):
