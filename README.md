@@ -9,7 +9,7 @@ An experimentation project to explore Claude Code while building a Python CLI fr
 ## Quick Start
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/bcolb/snipvault
 cd snipvault
 pip install -e .
 ```
