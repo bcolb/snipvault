@@ -4,22 +4,15 @@ from . import storage
 
 
 def add(name: str, snippet: str, tags: list[str] | None = None, path: Path = storage.DEFAULT_VAULT_PATH) -> None:
-    data = storage.load(path)
-    data[name] = {"snippet": snippet, "tags": tags or []}
-    storage.save(data, path)
+    storage.upsert(name, snippet, tags or [], path)
 
 
 def get(name: str, path: Path = storage.DEFAULT_VAULT_PATH) -> dict | None:
-    return storage.load(path).get(name)
+    return storage.get_one(name, path)
 
 
 def delete(name: str, path: Path = storage.DEFAULT_VAULT_PATH) -> bool:
-    data = storage.load(path)
-    if name not in data:
-        return False
-    del data[name]
-    storage.save(data, path)
-    return True
+    return storage.remove(name, path)
 
 
 def list_all(path: Path = storage.DEFAULT_VAULT_PATH) -> dict:

@@ -27,11 +27,27 @@ def load(path: Path = DEFAULT_VAULT_PATH) -> dict:
     return {name: {"snippet": snippet, "tags": json.loads(tags)} for name, snippet, tags in rows}
 
 
-def save(data: dict, path: Path = DEFAULT_VAULT_PATH) -> None:
+def get_one(name: str, path: Path = DEFAULT_VAULT_PATH) -> dict | None:
     with _connect(path) as conn:
-        conn.execute("DELETE FROM snippets")
-        conn.executemany(
-            "INSERT INTO snippets (name, snippet, tags) VALUES (?, ?, ?)",
-            [(name, entry["snippet"], json.dumps(entry["tags"])) for name, entry in data.items()],
-        )
-        conn.commit()
+        row = conn.execute(
+            "SELECT snippet, tags FROM snippets WHERE name = ?", (name,)
+        ).fetchone()
+    if row is None:
+        return None
+    return {"snippet": row[0], "tags": json.loads(row[1])}
+
+
+def upsert(name: str, snippet: str, tags: list[str], path: Path = DEFAULT_VAULT_PATH) -> None:
+    with _connect(path) as conn:
+        with conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO snippets (name, snippet, tags) VALUES (?, ?, ?)",
+                (name, snippet, json.dumps(tags)),
+            )
+
+
+def remove(name: str, path: Path = DEFAULT_VAULT_PATH) -> bool:
+    with _connect(path) as conn:
+        with conn:
+            cursor = conn.execute("DELETE FROM snippets WHERE name = ?", (name,))
+    return cursor.rowcount > 0
